@@ -1,4 +1,5 @@
 # Tapio-case
+[![CI](https://github.com/bnothomb/tapio-case/actions/workflows/ci.yml/badge.svg)](https://github.com/bnothomb/tapio-case/actions/workflows/ci.yml)
 
 
 ## Setup
