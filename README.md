@@ -15,15 +15,24 @@ pre-commit install
 
 ## Run
 ```
-python manage.py runserver
+python tapioview/manage.py runserver
+# Run on http://127.0.0.1:8000/
 ```
+
+## Run in docker
+```
+docker build tapioview/ -t docker-tapioview
+docker run -d --publish 5000:8000 docker-tapioview
+# Run on http://127.0.0.1:5000/
+```
+
 
 ## Test
 ```
 ruff --format=github .
 
-python manage.py test
+python tapioview/manage.py test
 
-coverage run --source='.' manage.py test
+coverage run --source='.' tapioview/manage.py test
 coverage report
 ```
