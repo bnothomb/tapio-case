@@ -20,7 +20,7 @@ python manage.py runserver
 
 ## Test
 ```
-pre-commit run --all-files
+ruff --format=github .
 
 python manage.py test
 
