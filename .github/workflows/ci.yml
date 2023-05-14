@@ -31,4 +31,5 @@ jobs:
         ruff --format=github .
     - name: Run Tests
       run: |
-        python tapioview/manage.py test
+        cd tapioview/
+        python manage.py test

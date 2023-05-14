@@ -6,6 +6,11 @@ from coreapp import views
 router = DefaultRouter()
 router.register(r'reports', views.ReportViewSet,basename="report")
 router.register(r'reports/(?P<report_id>\d+)/sources', views.SourceViewSet, basename='source')
+router.register(r'reports/(?P<report_id>\d+)/reductionStrategies', views.ReductionStrategyViewSet, basename='reductionStrategy')
+router.register(r'reports/(?P<report_id>\d+)/reductionStrategies/(?P<strategy_id>\d+)/modifications', 
+                views.ReductionModificationViewSet, basename='modification')
+router.register(r'reports/(?P<report_id>\d+)/reductionStrategies/(?P<strategy_id>\d+)/sources', 
+                views.SourceViewSet, basename='sourceAdded')
 
 
 # The API URLs are now determined automatically by the router.
