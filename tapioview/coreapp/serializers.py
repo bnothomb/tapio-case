@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from coreapp.models import Report, Source
+from coreapp.models import Report, Source, ReductionStrategy, ReductionModification
 
 
 class SourceSerializer(serializers.ModelSerializer):
@@ -15,13 +15,13 @@ class SourceSerializer(serializers.ModelSerializer):
                   'acquisition_year',
                   'report']
         
-    def to_representation(self, instance):
+    def to_representation(self, instance: Source):
         representation = super().to_representation(instance)
         # Perform any necessary modification to the total_emission field value here
-        year = self.context['request'].query_params.get('year')
-        if year is not None:
+        year_param:str|None = self.context['request'].query_params.get('year')
+        if year_param is not None:
             try:
-                year = int(year)
+                year = int(year_param)
                 representation['total_emission'] = instance.year_emission(year)
             except ValueError:
                 # Handle the case when the 'year' value is not a valid integer
@@ -29,8 +29,68 @@ class SourceSerializer(serializers.ModelSerializer):
         return representation
         
 
+class ReductionModificationSerializer(serializers.ModelSerializer):
+    delta_total_emission = serializers.SerializerMethodField()
+
+    class Meta:
+        model = ReductionModification
+        fields = ['id',
+                  'description',
+                  'strategy',
+                  'source',
+                  'value_ratio',
+                  'emission_factor_change',
+                  'delta_total_emission']
+        
+    def get_delta_total_emission(self, obj: ReductionModification) -> float|None:
+        year_param:str|None = self.context['request'].query_params.get('year')
+        delta_total_emission:float|None = None
+        if year_param is None:
+            return None
+        try:
+            year = int(year_param)
+            delta_total_emission = obj.year_delta_emission(year)
+        except ValueError:
+            # Handle the case when the 'year' value is not a valid integer
+            pass
+        return delta_total_emission  
+
+class ReductionStrategySerializer(serializers.ModelSerializer):
+    sources = SourceSerializer(
+        many=True,
+        read_only=True,
+    )
+    modifications = ReductionModificationSerializer(
+        many=True,
+        read_only=True,
+    )
+
+    delta_total_emission = serializers.SerializerMethodField()
+
+    class Meta:
+        model = ReductionStrategy
+        fields = ['id','report','name','delta_total_emission','sources','modifications']
+    
+
+    def get_delta_total_emission(self, obj: ReductionStrategy) -> float|None:
+        year_param:str|None = self.context['request'].query_params.get('year')
+        delta_total_emission:float|None = None
+        if year_param is None:
+            return None
+        try:
+            year = int(year_param)
+            delta_total_emission = obj.year_delta_emission(year)
+        except ValueError:
+            # Handle the case when the 'year' value is not a valid integer
+            pass
+        return delta_total_emission
+
 class ReportSerializer(serializers.ModelSerializer):
     sources = SourceSerializer(
+        many=True,
+        read_only=True,
+    )
+    reductionStrategies = ReductionStrategySerializer(
         many=True,
         read_only=True,
     )
@@ -39,20 +99,18 @@ class ReportSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Report
-        fields = ['id','name','total_emission','sources']
+        fields = ['id','name','total_emission','sources','reductionStrategies']
     
 
-    def get_total_emission(self, obj):
-        year = self.context['request'].query_params.get('year')
-        total_emission = None
-        if year is None:
+    def get_total_emission(self, obj: Report) -> float|None:
+        year_param:str|None = self.context['request'].query_params.get('year')
+        total_emission:float|None = None
+        if year_param is None:
             return None
         try:
-            year = int(year)
-            total_emission = sum(source.year_emission(year) 
-                                for source in obj.sources.all() 
-                                if source.total_emission is not None)
+            year = int(year_param)
+            total_emission = obj.year_emission(year)
         except ValueError:
-                # Handle the case when the 'year' value is not a valid integer
-                pass
+            # Handle the case when the 'year' value is not a valid integer
+            pass
         return total_emission
