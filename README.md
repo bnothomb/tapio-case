@@ -12,15 +12,22 @@ pip install -r tapioview/requirements.txt
 pre-commit install
 ```
 
+## API documentation
+```
+python tapioview/manage.py runserver
+# Available at http://127.0.0.1:8000/api/schema/swagger-ui/
+```
 
 ## Run
 ```
 python tapioview/manage.py runserver
 # Run on http://127.0.0.1:8000/
+# Test user : admin/admin
 ```
 
 ## Run in docker
 ```
+# Warning ! No data persistence for the moment !
 docker build tapioview/ -t docker-tapioview
 docker run -d --publish 5000:8000 docker-tapioview
 # Run on http://127.0.0.1:5000/
