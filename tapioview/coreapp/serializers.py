@@ -19,7 +19,7 @@ class SourceSerializer(serializers.ModelSerializer):
         representation = super().to_representation(instance)
         # Perform any necessary modification to the total_emission field value here
         year_param:str|None = self.context['request'].query_params.get('year')
-        if year_param is not None:
+        if year_param:
             try:
                 year = int(year_param)
                 representation['total_emission'] = instance.year_emission(year)
@@ -30,30 +30,17 @@ class SourceSerializer(serializers.ModelSerializer):
         
 
 class ReductionModificationSerializer(serializers.ModelSerializer):
-    delta_total_emission = serializers.SerializerMethodField()
-
     class Meta:
         model = ReductionModification
         fields = ['id',
                   'description',
                   'strategy',
                   'source',
-                  'value_ratio',
-                  'emission_factor_change',
-                  'delta_total_emission']
-        
-    def get_delta_total_emission(self, obj: ReductionModification) -> float|None:
-        year_param:str|None = self.context['request'].query_params.get('year')
-        delta_total_emission:float|None = None
-        if year_param is None:
-            return None
-        try:
-            year = int(year_param)
-            delta_total_emission = obj.year_delta_emission(year)
-        except ValueError:
-            # Handle the case when the 'year' value is not a valid integer
-            pass
-        return delta_total_emission  
+                  'order',
+                  'modification_start_year',
+                  'value_modification',
+                  'emission_factor_change']
+        read_only_fields = ['order']
 
 class ReductionStrategySerializer(serializers.ModelSerializer):
     sources = SourceSerializer(
@@ -69,14 +56,19 @@ class ReductionStrategySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ReductionStrategy
-        fields = ['id','report','name','delta_total_emission','sources','modifications']
+        fields = ['id',
+                  'report',
+                  'name',
+                  'delta_total_emission',
+                  'sources',
+                  'modifications']
     
 
     def get_delta_total_emission(self, obj: ReductionStrategy) -> float|None:
         year_param:str|None = self.context['request'].query_params.get('year')
         delta_total_emission:float|None = None
-        if year_param is None:
-            return None
+        if not year_param:
+            return None # In the case where there is no year parameter, the calculation of the delta is meaningless
         try:
             year = int(year_param)
             delta_total_emission = obj.year_delta_emission(year)
@@ -99,13 +91,17 @@ class ReportSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Report
-        fields = ['id','name','total_emission','sources','reductionStrategies']
+        fields = ['id',
+                  'name',
+                  'total_emission',
+                  'sources',
+                  'reductionStrategies']
     
 
     def get_total_emission(self, obj: Report) -> float|None:
         year_param:str|None = self.context['request'].query_params.get('year')
         total_emission:float|None = None
-        if year_param is None:
+        if not year_param:
             return None
         try:
             year = int(year_param)

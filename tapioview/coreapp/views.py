@@ -21,12 +21,8 @@ class ReportViewSet(viewsets.ModelViewSet):
     """
     This viewset automatically provides `list`, `create`, `retrieve`,
     `update` and `destroy` actions.
-    
-    For more details on how accounts are activated please [see here][ref].
-
-    [ref]: http://example.com/activating-accounts
     """
-    queryset = Report.objects.all().order_by('id')
+    queryset = Report.objects.all()
     serializer_class = ReportSerializer
     permission_classes = [permissions.IsAuthenticated]
 
@@ -54,10 +50,10 @@ class SourceViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         if 'strategy_id' in self.kwargs :
             strategy_id = self.kwargs['strategy_id']
-            return Source.objects.filter(strategy_id=strategy_id).order_by('id')
+            return Source.objects.filter(strategy_id=strategy_id)
 
         report_id = self.kwargs['report_id']
-        return Source.objects.filter(report_id=report_id).order_by('id')
+        return Source.objects.filter(report_id=report_id)
 
 @extend_schema(
     description='Computed value based on the year.',
@@ -81,7 +77,8 @@ class ReductionStrategyViewSet(viewsets.ModelViewSet):
     
     def get_queryset(self):
         report_id = self.kwargs['report_id']
-        return ReductionStrategy.objects.filter(report_id=report_id).order_by('id')
+        return ReductionStrategy.objects.filter(report_id=report_id)
+        
 
 @extend_schema(
     description='Computed value based on the year.',
@@ -105,4 +102,4 @@ class ReductionModificationViewSet(viewsets.ModelViewSet):
     
     def get_queryset(self):
         strategy_id = self.kwargs['strategy_id']
-        return ReductionModification.objects.filter(strategy_id=strategy_id).order_by('id')
+        return ReductionModification.objects.filter(strategy_id=strategy_id)

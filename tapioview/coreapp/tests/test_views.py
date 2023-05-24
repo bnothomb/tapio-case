@@ -12,8 +12,8 @@ class ReportViewTest(TestCase):
 
         # Setup data
         self.report = Report.objects.create(name='Report 1')
-        self.source1 = Source.objects.create(report=self.report, description='Source 1')
-        self.source2 = Source.objects.create(report=self.report, description='Source 2')
+        self.source1 = Source.objects.create(report=self.report, description='Source 1', value=1, emission_factor=10)
+        self.source2 = Source.objects.create(report=self.report, description='Source 2', value=1, emission_factor=10)
 
         # Setup permissions
         self.user = User.objects.create_user(username='testuser', password='testpassword')
@@ -49,10 +49,10 @@ class SourceViewTest(TestCase):
 
         # Setup data
         self.report = Report.objects.create(name='Report 1')
-        self.source1 = Source.objects.create(report=self.report, description='Source 1')
-        self.source2 = Source.objects.create(report=self.report, description='Source 2')
+        self.source1 = Source.objects.create(report=self.report, description='Source 1', value=1, emission_factor=10)
+        self.source2 = Source.objects.create(report=self.report, description='Source 2', value=1, emission_factor=10)
         self.strategy = ReductionStrategy.objects.create(name='Strategy 1', report=self.report)
-        self.source3 = Source.objects.create(strategy=self.strategy, description='Source 3')
+        self.source3 = Source.objects.create(strategy=self.strategy, description='Source 3', value=1, emission_factor=10)
 
         # Setup permissions
         self.user = User.objects.create_user(username='testuser', password='testpassword')
@@ -94,11 +94,12 @@ class ReductionStrategyViewTest(TestCase):
 
         # Setup data
         self.report = Report.objects.create(name='Report 1')
-        self.source = Source.objects.create(report=self.report, description='Source 1')
+        self.source = Source.objects.create(report=self.report, description='Source 1', value=1, emission_factor=10)
         self.strategy = ReductionStrategy.objects.create(name='Strategy 1', report=self.report)
         self.modification = ReductionModification.objects.create(strategy=self.strategy,
                                                                  source=self.source,
-                                                                 description='Modification 1')
+                                                                 description='Modification 1',
+                                                                 modification_start_year=2020)
 
         # Setup permissions
         self.user = User.objects.create_user(username='testuser', password='testpassword')
@@ -131,11 +132,12 @@ class ReductionModificationViewTest(TestCase):
 
         # Setup data
         self.report = Report.objects.create(name='Report 1')
-        self.source = Source.objects.create(report=self.report, description='Source 1')
+        self.source = Source.objects.create(report=self.report, description='Source 1', value=1, emission_factor=10)
         self.strategy = ReductionStrategy.objects.create(name='Strategy 1', report=self.report)
         self.modification = ReductionModification.objects.create(strategy=self.strategy,
                                                                  source=self.source,
-                                                                 description='Modification 1')
+                                                                 description='Modification 1',
+                                                                 modification_start_year=2020)
 
         # Setup permissions
         self.user = User.objects.create_user(username='testuser', password='testpassword')
